@@ -48,7 +48,7 @@ button.danger{color:#c92a2a}
 .fab{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);padding:16px;font-size:17px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:6}
 .form{padding:0 14px}
 label{display:block;font-size:13px;color:var(--m);margin:14px 0 6px;font-weight:600}
-input,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--b);border-radius:10px;background:#fff;color:var(--t)}
+input,textarea,select{width:100%;font:inherit;padding:10px;border:1px solid var(--b);border-radius:10px;background:#fff;color:var(--t)}
 textarea{resize:vertical}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{background:#fff;color:var(--t);border:1px solid var(--b);padding:8px 12px}
@@ -75,8 +75,12 @@ textarea{resize:vertical}
 .it-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .it-h .est{margin-left:auto}
 .it-t{margin:6px 0 0;white-space:pre-wrap}
-.ph{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.ph{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}
 .ph img{width:100%;max-height:220px;object-fit:contain;background:#f1f3f5;border-radius:4px}
+#informe.f-m .ph{grid-template-columns:repeat(3,1fr)}
+#informe.f-m .ph img{max-height:150px}
+#informe.f-p .ph{grid-template-columns:repeat(4,1fr);gap:4px}
+#informe.f-p .ph img{max-height:110px}
 dialog{border:0;border-radius:14px;padding:18px;max-width:90vw;width:340px}
 dialog::backdrop{background:rgba(0,0,0,.4)}
 .col{display:grid;gap:8px;margin-top:10px}
@@ -87,7 +91,10 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
   body{background:#fff}
   .screen{padding:0;min-height:0}
   #informe{margin:0;padding:0;border:0;border-radius:0}
+  .it{padding:8px;margin-bottom:8px}
   .ph img{max-height:68mm}
+  #informe.f-m .ph img{max-height:45mm}
+  #informe.f-p .ph img{max-height:34mm}
   .chip,.est{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -136,6 +143,12 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
   <div class="opts noprint">
     <label for="i-fecha">Fecha de la ronda</label><input type="date" id="i-fecha">
     <label for="i-obra">Obra (sale en la cabecera)</label><input id="i-obra" placeholder="Nombre de la obra">
+    <label for="i-fotos">Tamaño de las fotos al imprimir</label>
+    <select id="i-fotos">
+      <option value="g">Grande (2 por fila)</option>
+      <option value="m" selected>Media (3 por fila)</option>
+      <option value="p">Pequeña (4 por fila)</option>
+    </select>
     <label class="chk"><input type="checkbox" id="i-prev" checked> Incluir abiertas de días anteriores</label>
   </div>
   <article id="informe"></article>
@@ -324,6 +337,7 @@ async function hecho() {
 // ---- Informe ----
 async function renderInforme() {
   UI.free();
+  $('#informe').className = 'f-' + $('#i-fotos').value;
   const fecha = $('#i-fecha').value || hoyKey();
   const prev = $('#i-prev').checked;
   const obra = $('#i-obra').value.trim();
@@ -407,12 +421,16 @@ $('#f-gal').onchange = async e => { const fs = [...e.target.files]; e.target.val
 
 $('#b-informe').onclick = async () => {
   $('#i-fecha').value = hoyKey();
-  try { $('#i-obra').value = localStorage.getItem('obra') || ''; } catch (e) {}
+  try {
+    $('#i-obra').value = localStorage.getItem('obra') || '';
+    $('#i-fotos').value = localStorage.getItem('fotosTam') || 'm';
+  } catch (e) {}
   await renderInforme(); show('informe');
 };
 $('#i-volver').onclick = () => { UI.free(); show('list'); };
 $('#i-fecha').onchange = renderInforme;
 $('#i-prev').onchange = renderInforme;
+$('#i-fotos').onchange = () => { try { localStorage.setItem('fotosTam', $('#i-fotos').value); } catch (e) {} renderInforme(); };
 $('#i-obra').oninput = () => { try { localStorage.setItem('obra', $('#i-obra').value); } catch (e) {} renderInforme(); };
 $('#i-imprimir').onclick = imprimir;
 

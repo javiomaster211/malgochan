@@ -1,7 +1,7 @@
 // Service worker: caché de la app para que funcione sin cobertura.
 // Estrategia: devuelve lo cacheado al instante y actualiza en segundo plano.
 // Si cambias index.html, sube el número de versión para forzar la actualización.
-const V = 'ronda-v1';
+const V = 'ronda-v2';
 const ARCHIVOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
